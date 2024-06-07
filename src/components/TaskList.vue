@@ -20,7 +20,7 @@
       </button>
     </div>
 
-    <button @click="switchModal">Добавить задание</button>
+    <button @click="switchModal('add')">Добавить задание</button>
 
     <div class="task-list">
         <ul v-bind:class="test">
@@ -32,7 +32,13 @@
             <button @click="delTask(index)">
               Удалить
             </button>
-            <button>Редактировать</button>
+            <button 
+              :data-text='task.title' 
+              :data-id='task.id' 
+              @click="switchModal('edit', index)"
+            >
+              Редактировать
+            </button>
           </li>
         </ul>  
     </div>
@@ -40,11 +46,15 @@
     <div class='overlay' v-if="isShowModal">
         <div>
             <form>
-              <button class='close' @click="switchModal">Закрыть</button>
+              <button class='close' @click="switchModal('close')">
+                Закрыть
+              </button>
               <div class='form-content'>
-                <div>Добавить задание:</div>
+                <div>{{ popupp[currunePopupp].title }}:</div>
                 <div><input v-model="textNewTask" /></div>
-                <button @click="addTask">Добавить</button>
+                <button @click="popupp[currunePopupp].click()">
+                  {{ popupp[currunePopupp].textInButton }}
+                </button>
               </div>
             </form>  
         </div>
@@ -54,10 +64,25 @@
 </template>
 
 <script>
+
 export default {
   name: 'task-list',
   data() {
     return {
+      currunePopupp: 'add',
+      popupp: {
+        add: {
+          title: 'Добавить задание',
+          click: this.addTask,
+          textInButton: 'Добавить'
+        },
+        edit: {
+          title: 'Редактировать задание',
+          click: this.editTask,
+          textInButton: 'Сохранить'
+        }
+      },
+      currentTask: '',
       textNewTask: '',
       isShowModal: false,
       currentPageBg: 0,
@@ -80,15 +105,14 @@ export default {
           src: 'https://klevtsovaelena.github.io/wallpaper/img/BlackWhite10.jpg'
         }
       ],
-      qwerty: 'Привет',
-      select: 'nohello',
-      titleTask: 'Заголовок компонента',
       test: 'https://img.freepik.com/free-photo/view-of-3d-adorable-cat-with-fluffy-clouds_23-2151113419.jpg', 
       list: [
         {
+          id: '1',
           title: 'Помыть посуду'
         },
         {
+          id: '2',
           title: 'Постирать'
         }
       ]
@@ -115,7 +139,6 @@ export default {
         this.currentPageBg = newIndex
     },
 
-
     addTask() {
         // 1 - остановить перезагрузку страницы
         event.preventDefault();
@@ -128,12 +151,25 @@ export default {
         // 4 - Добавим в массив 
         this.list.push(newObject);
         // 5 - Вызовем функцию для закрытия модального окна
-        this.switchModal();
+        this.switchModal('close');
 
     },
 
-    switchModal(){
+    switchModal(type){
+
+      this.currunePopupp = type;
       this.isShowModal = !this.isShowModal;
+
+      switch(type) {
+        case 'edit':
+          this.textNewTask = event.target.dataset.text
+          this.currentTask = event.target.dataset.id
+          break;
+        case 'add':
+          this.textNewTask = ''
+          break;
+      }
+
     },
 
     delTask(index){
@@ -146,7 +182,21 @@ export default {
         this.list = newList
     },
     // ДЗ Редактирование задачи
+    editTask(){
+      event.preventDefault();
+      console.log(this.currentTask)
+      console.log(this.textNewTask)
+      const newList = this.list.map( (task) => {
+        if (task.id === this.currentTask) {
+          console.log(task)
+          task.title = this.textNewTask
+        }
+        return task
+      })
 
+      this.list = newList
+      this.switchModal('close');
+    },
   }
 }
 </script>
