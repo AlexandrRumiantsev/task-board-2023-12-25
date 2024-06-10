@@ -27,6 +27,7 @@
           <li 
             v-for="(task, index) in list" 
             v-bind:key='task'
+            draggable="true"
           >
             Задание {{index + 1}} {{task.title}}
             <button @click="delTask(index)">
@@ -42,6 +43,7 @@
           </li>
         </ul>  
     </div>
+    
 
     <div class='overlay' v-if="isShowModal">
         <div>
