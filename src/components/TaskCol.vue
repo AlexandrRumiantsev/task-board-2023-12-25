@@ -1,12 +1,26 @@
 <template>
     <div class="task-container">
-    <div class='task-list-title'>{{ title }}</div>
+    <div 
+        class='task-list-title' 
+        :data-name='name'
+    >
+        {{ title }}
+    </div>
     <div class="task-list">
         <ul v-bind:class="test">
           <li 
             v-for="(task, index) in list" 
             v-bind:key='task'
             draggable="true"
+            @dragstart="handlerDragstart"
+            @dragend="handlerDragend"
+            @dragenter="handlerDragenter"
+            @dragleave="handlerDragleave"
+            @dragover="handlerDragover"
+            @drop="handlerDrop"
+            :data-title='task.title'
+            :data-id='task.id'
+            :data-old='name'
           >
             Задание {{index + 1}} {{task.title}}
             <button @click="delTask(index, name)">
@@ -33,10 +47,55 @@ export default {
     props: {
         name: String,
         title: String,
+        changeList: Function,
         list: Object,
+        arr: Object,
         delTask: Function,
         switchModal: Function,
     },
+    methods: {
+        handlerDragstart(){
+            const draggable = event.target;
+            // Добавляем данные к перетаскиваемому элементу
+            draggable.style.opacity = '0.5';
+            console.log('handlerDragstart')
+        },
+        handlerDragend() {
+            const draggable = event.target;
+            // Добавляем данные к перетаскиваемому элементу
+            draggable.style.opacity = '1';
+            console.log('draggable', draggable.dataset.id)
+
+            const task = {
+                id: draggable.dataset.id,
+                title: draggable.dataset.title
+            }
+
+            const positionElement = document.elementFromPoint(
+                event.x, event.y
+            )
+            const colName = positionElement.dataset.name;
+
+            this.changeList(
+                task, 
+                draggable.dataset.old, 
+                colName
+            )
+
+        },
+        handlerDragenter(){
+            console.log('handlerDragenter')
+        },
+        handlerDragleave(){
+            console.log('handlerDragleave')
+        },
+        handlerDragover(){
+            console.log('handlerDragover')
+        },
+        handlerDrop(){
+            console.log('handlerDrop')
+        }
+    }
 }
 
 </script>

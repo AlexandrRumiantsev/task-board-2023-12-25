@@ -28,21 +28,27 @@
         :delTask="delTask" 
         :switchModal="switchModal" 
         :title="titles.start" 
-        :list="list.start">
+        :list="list.start"
+        :changeList="changeList"
+      >
       </TaskCol>
       <TaskCol 
         name='todo'
         :delTask="delTask" 
         :switchModal="switchModal" 
         :title="titles.todo" 
-        :list="list.todo">
+        :list="list.todo"
+        :changeList="changeList"
+      >
       </TaskCol>
       <TaskCol 
         name='done'
         :delTask="delTask" 
         :switchModal="switchModal" 
         :title="titles.done" 
-        :list="list.done">
+        :list="list.done"
+        :changeList="changeList"
+      >
       </TaskCol>
     </div>
 
@@ -147,6 +153,10 @@ export default {
   },
   methods: {
 
+    changeList() {
+
+    },
+
     toggleMenu() {
         
         if(this.visibleMenu) {
@@ -173,7 +183,7 @@ export default {
           title: textInInput
         }
         // 4 - Добавим в массив 
-        this.list.push(newObject);
+        this.list.start.push(newObject);
         // 5 - Вызовем функцию для закрытия модального окна
         this.switchModal('close');
 
