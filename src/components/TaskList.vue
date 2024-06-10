@@ -22,28 +22,29 @@
 
     <button @click="switchModal('add')">Добавить задание</button>
 
-    <div class="task-list">
-        <ul v-bind:class="test">
-          <li 
-            v-for="(task, index) in list" 
-            v-bind:key='task'
-            draggable="true"
-          >
-            Задание {{index + 1}} {{task.title}}
-            <button @click="delTask(index)">
-              Удалить
-            </button>
-            <button 
-              :data-text='task.title' 
-              :data-id='task.id' 
-              @click="switchModal('edit', index)"
-            >
-              Редактировать
-            </button>
-          </li>
-        </ul>  
+    <div class='columns'>
+      <TaskCol 
+        name='start'
+        :delTask="delTask" 
+        :switchModal="switchModal" 
+        :title="titles.start" 
+        :list="list.start">
+      </TaskCol>
+      <TaskCol 
+        name='todo'
+        :delTask="delTask" 
+        :switchModal="switchModal" 
+        :title="titles.todo" 
+        :list="list.todo">
+      </TaskCol>
+      <TaskCol 
+        name='done'
+        :delTask="delTask" 
+        :switchModal="switchModal" 
+        :title="titles.done" 
+        :list="list.done">
+      </TaskCol>
     </div>
-    
 
     <div class='overlay' v-if="isShowModal">
         <div>
@@ -66,11 +67,13 @@
 </template>
 
 <script>
+import TaskCol from './TaskCol.vue';
 
 export default {
   name: 'task-list',
   data() {
     return {
+      colName: '',
       currunePopupp: 'add',
       popupp: {
         add: {
@@ -108,16 +111,35 @@ export default {
         }
       ],
       test: 'https://img.freepik.com/free-photo/view-of-3d-adorable-cat-with-fluffy-clouds_23-2151113419.jpg', 
-      list: [
-        {
-          id: '1',
-          title: 'Помыть посуду'
-        },
-        {
-          id: '2',
-          title: 'Постирать'
-        }
-      ]
+      titles: {
+        start: 'Входящие',
+        todo: 'В работе',
+        done: 'Завершенные'
+      },
+      list: {
+        start: [
+          {
+            id: '1',
+            title: 'Помыть посуду'
+          },
+          {
+            id: '3',
+            title: 'Постирать'
+          }
+        ],
+        todo: [
+          {
+            id: '2',
+            title: 'Погладить'
+          }
+        ],
+        done: [
+          {
+            id: '4',
+            title: 'Помыть кота'
+          }
+        ]
+      } 
     };
   },
   props: {
@@ -157,7 +179,7 @@ export default {
 
     },
 
-    switchModal(type){
+    switchModal(type, colName){
 
       this.currunePopupp = type;
       this.isShowModal = !this.isShowModal;
@@ -166,6 +188,7 @@ export default {
         case 'edit':
           this.textNewTask = event.target.dataset.text
           this.currentTask = event.target.dataset.id
+          this.colName = colName
           break;
         case 'add':
           this.textNewTask = ''
@@ -174,21 +197,23 @@ export default {
 
     },
 
-    delTask(index){
+    delTask(index, colName){
         event.preventDefault();
-        const newList = this.list.filter((item, indexItem) => {
+        const newList = this.list[colName].filter((item, indexItem) => {
           return index !== indexItem
         })
         
         // Обновить лист
-        this.list = newList
+        this.list[colName] = newList
     },
     // ДЗ Редактирование задачи
     editTask(){
       event.preventDefault();
       console.log(this.currentTask)
       console.log(this.textNewTask)
-      const newList = this.list.map( (task) => {
+      console.log(this.list)
+      console.log(this.colName)
+      const newList = this.list[this.colName].map( (task) => {
         if (task.id === this.currentTask) {
           console.log(task)
           task.title = this.textNewTask
@@ -196,33 +221,21 @@ export default {
         return task
       })
 
-      this.list = newList
+      this.list[this.colName] = newList
       this.switchModal('close');
     },
+  },
+  components: {
+    TaskCol
   }
 }
 </script>
 
 <style scoped>
-  .task-list {
-    width: 30%;
-    min-height: 400px;
-    background: white;
-    padding: 5px;
-  }
-  .task-list ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  .task-list li {
-    text-align: left;
-    background: #f6f6f6;
-    padding: 5px 15px;
-    margin: 15px 30px;
-    cursor: pointer;
-  }
-  .task-list li:hover{
-    outline: 1px solid black;
+  .columns {
+    display: flex;
+    justify-content: space-around;
+    margin: 50px 0;
   }
   form .close {
     position: absolute;
